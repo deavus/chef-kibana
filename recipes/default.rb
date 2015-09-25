@@ -47,20 +47,35 @@ directory node['kibana']['installdir'] do
   mode "0755"
 end
 
-git "#{node['kibana']['installdir']}/#{node['kibana']['branch']}" do
-  repository node['kibana']['repo']
-  reference node['kibana']['branch']
-  if node['kibana']['git']['checkout']
-    action :checkout
-  else
-    action :sync
-  end
-  user kibana_user
+#git "#{node['kibana']['installdir']}/#{node['kibana']['branch']}" do
+#  repository node['kibana']['repo']
+#  reference node['kibana']['branch']
+#  if node['kibana']['git']['checkout']
+#    action :checkout
+#  else
+#    action :sync
+#  end
+#  user kibana_user
+#end
+
+remote_file "#{Chef::Config[:file_cache_path]}/kibana-#{node['kibana']['version']}.tar.gz" do
+  source "#{node['kibana']['download_url']}"
+  checksum node['kibana']['checksum']
+  mode '0755'
+  not_if { ::File.exists?(install_path) }
 end
 
-link "#{node['kibana']['installdir']}/current" do
-  to "#{node['kibana']['installdir']}/#{node['kibana']['branch']}/src"
+bash 'install-kibana' do
+  cwd node['kibana']['installdir']
+  code <<-EOF
+    tar --strip=1 -C #{node['kibana']['installdir']} #{Chef::Config[:file_cache_path]}/kibana-#{node['kibana']['version']}.tar.gz
+  EOF
+  not_if { ::File.exists?(install_path) }
 end
+
+#link "#{node['kibana']['installdir']}/current" do
+#  to "#{node['kibana']['installdir']}/#{node['kibana']['branch']}/src"
+#end
 
 template "#{node['kibana']['installdir']}/current/config.js" do
   source node['kibana']['config_template']
