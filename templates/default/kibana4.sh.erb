@@ -1,58 +1,100 @@
-#!/bin/bash
-#
-# chkconfig: 35 90 12
-# description: kibana4 server
+N INIT INFO
+# Provides:          kibana
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Runs kibana daemon
+# Description: Runs the kibana daemon as a non-root user
+### END INIT INFO
 
-#configure this with wherever you unpacked kibana:
-KIBANA_BIN=<%= node['kibana']['installdir'] %>/bin
-
-PID_FILE=/var/run/$NAME.pid
-PATH=/bin:/usr/bin:/sbin:/usr/sbin:$KIBANA_BIN
-DAEMON=$KIBANA_BIN/kibana
-NAME=kibana4
+# Process name
+NAME=kibana
 DESC="Kibana4"
+PROG="/etc/init.d/kibana"
 
+# Configure location of Kibana bin
+KIBANA_BIN=<%=node['kibana']['installdir'] %>/bin
 
-#
-# Get function from functions library
+# PID Info
+PID_FOLDER=/var/run/kibana/
+PID_FILE=/var/run/kibana/$NAME.pid
+LOCK_FILE=/var/lock/subsys/$NAME
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:$KIBANA_BIN
+DAEMON=$KIBANA_BIN/$NAME
+
+# Configure User to run daemon process
+DAEMON_USER=kibana_user
+# Configure logging location
+KIBANA_LOG=/var/log/kibana.log
+
+# Begin Script
+RETVAL=0
+
+if [ `id -u` -ne 0 ]; then
+        echo "You need root privileges to run this script"
+        exit 1
+fi
+
+# Function library
 . /etc/init.d/functions
-# Start the service kibana4
+ 
 start() {
-        initlog -c "echo -n Starting kibana4 server: "
-        $DAEMON &
-        ### Create the lock file ###
-        touch /var/lock/subsys/kibana4
-        success $"kibana4 server startup"
-        echo
+        echo -n "Starting $DESC : "
+
+	pid=`pidofproc -p $PID_FILE kibana`
+        if [ -n "$pid" ] ; then
+                echo "Already running."
+                exit 0
+        else
+        # Start Daemon
+		if [ ! -d "$PID_FOLDER" ] ; then
+                        mkdir $PID_FOLDER
+                fi
+		daemon --user=$DAEMON_USER --pidfile=$PID_FILE $DAEMON 1>"$KIBANA_LOG" 2>&1 &
+                sleep 2
+                pidofproc node > $PID_FILE
+                RETVAL=$?
+                [[ $? -eq 0 ]] && success || failure
+		echo
+                [ $RETVAL = 0 ] && touch $LOCK_FILE
+                return $RETVAL
+        fi
 }
-# Restart the service FOO
+
+reload()
+{
+    echo "Reload command is not implemented for this service."
+    return $RETVAL
+}
+
 stop() {
-        initlog -c "echo -n Stopping kibana4 server: "
-        killproc kibana4
-        ### Now, delete the lock file ###
-        rm -f /var/lock/subsys/kibana4
-        echo
+        echo -n "Stopping $DESC : "
+        killproc -p $PID_FILE $DAEMON
+        RETVAL=$?
+	echo
+        [ $RETVAL = 0 ] && rm -f $PID_FILE $LOCK_FILE
 }
-### main logic ###
+ 
 case "$1" in
   start)
         start
-        ;;
+	;;
   stop)
         stop
         ;;
   status)
-        status kibana4
+        status -p $PID_FILE $DAEMON
+        RETVAL=$?
         ;;
-  restart|reload|condrestart)
+  restart)
         stop
         start
         ;;
+  reload)
+	reload
+	;;
   *)
-        echo $"Usage: $0 {start|stop|restart|reload|status}"
-        exit 1
+	# Invalid Arguments, print the following message.
+        echo "Usage: $0 {start|stop|status|restart}" >&2
+	exit 2
+        ;;
 esac
-exit 0
-
-
-
