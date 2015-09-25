@@ -77,7 +77,7 @@ end
 #  to "#{node['kibana']['installdir']}/#{node['kibana']['branch']}/src"
 #end
 
-template "#{node['kibana']['installdir']}/conf/kibana.yml" do
+template "#{node['kibana']['installdir']}/config/kibana.yml" do
   source node['kibana']['config_template']
   cookbook node['kibana']['config_cookbook']
   mode "0750"
