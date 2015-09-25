@@ -62,7 +62,7 @@ remote_file "#{Chef::Config[:file_cache_path]}/kibana-#{node['kibana']['version'
   source "#{node['kibana']['download_url']}"
   checksum node['kibana']['checksum']
   mode '0755'
-  not_if { ::File.exists?(install_path) }
+  not_if { ::File.exists?("#{node['kibana']['installdir']/node}") }
 end
 
 bash 'install-kibana' do
@@ -70,7 +70,7 @@ bash 'install-kibana' do
   code <<-EOF
     tar --strip=1 -C #{node['kibana']['installdir']} #{Chef::Config[:file_cache_path]}/kibana-#{node['kibana']['version']}.tar.gz
   EOF
-  not_if { ::File.exists?(install_path) }
+  not_if { ::File.exists?("#{node['kibana']['installdir']/node}") }
 end
 
 #link "#{node['kibana']['installdir']}/current" do
