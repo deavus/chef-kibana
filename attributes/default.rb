@@ -15,5 +15,5 @@ default['kibana']['webserver_listen'] = node.ipaddress
 default['kibana']['webserver_port'] = 80
 default['kibana']['version'] = '4.1.2'
 default['kibana']['arch'] = 'linux-x64'
-default['kibana']['download_url'] = 'https://download.elastic.co/kibana/kibana/kibana-#{node['kibana']['version']}-#{node['kibana']['arch']}.tar.gz'
+default['kibana']['download_url'] = "https://download.elastic.co/kibana/kibana/kibana-#{node['kibana']['version']}-#{node['kibana']['arch']}.tar.gz"
 default['kibana']['checksum'] = '45e67114f7dac4ccac8118bf98ee8f6362c7a6a1'
