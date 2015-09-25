@@ -68,7 +68,7 @@ end
 bash 'install-kibana' do
   cwd node['kibana']['installdir']
   code <<-EOF
-    tar --strip=1 -C #{node['kibana']['installdir']} #{Chef::Config[:file_cache_path]}/kibana-#{node['kibana']['version']}.tar.gz
+    tar --strip=1 -C #{node['kibana']['installdir']} -xvf #{Chef::Config[:file_cache_path]}/kibana-#{node['kibana']['version']}.tar.gz
   EOF
   not_if { ::File.exists?("#{node['kibana']['installdir']}/node}") }
 end
