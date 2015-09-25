@@ -77,12 +77,12 @@ end
 #  to "#{node['kibana']['installdir']}/#{node['kibana']['branch']}/src"
 #end
 
-template "#{node['kibana']['installdir']}/current/config.js" do
-  source node['kibana']['config_template']
-  cookbook node['kibana']['config_cookbook']
-  mode "0750"
-  user kibana_user
-end
+#template "#{node['kibana']['installdir']}/current/config.js" do
+#  source node['kibana']['config_template']
+#  cookbook node['kibana']['config_cookbook']
+#  mode "0750"
+#  user kibana_user
+#end
 
 #link "#{node['kibana']['installdir']}/current/app/dashboards/default.json" do
 #  to "logstash.json"
