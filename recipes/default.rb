@@ -84,6 +84,15 @@ template "#{node['kibana']['installdir']}/config/kibana.yml" do
   user kibana_user
 end
 
+template "/etc/init.d/kibana4" do
+  mode "0755"
+end
+
+service 'kibana4' do
+  supports :status => true, :restart => true, :reload => true
+  action [ :enable, :start ]
+end
+
 #template "#{node['kibana']['installdir']}/current/config.js" do
 #  source node['kibana']['config_template']
 #  cookbook node['kibana']['config_cookbook']
