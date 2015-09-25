@@ -85,6 +85,7 @@ template "#{node['kibana']['installdir']}/config/kibana.yml" do
 end
 
 template "/etc/init.d/kibana4" do
+  source "kibana4.sh"
   mode "0755"
 end
 
