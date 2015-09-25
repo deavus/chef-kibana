@@ -37,6 +37,10 @@ else
   kibana_user = node['kibana']['user']
 end
 
+user kibana_user do
+  system true
+end
+
 directory node['kibana']['installdir'] do
   owner kibana_user
   mode "0755"
