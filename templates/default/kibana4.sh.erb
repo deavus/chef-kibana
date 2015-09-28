@@ -1,4 +1,13 @@
-N INIT INFO
+#!/bin/sh
+#
+# kibana -- startup script for kibana4
+#
+# chkconfig: - 85 15
+# processname: kibana
+# pidfile: /var/run/kibana.pid
+# description: Kibana is a webui to visualize data
+#
+### BEGIN INIT INFO
 # Provides:          kibana
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
@@ -11,6 +20,19 @@ NAME=kibana
 DESC="Kibana4"
 PROG="/etc/init.d/kibana"
 
+<%
+if node['kibana']['user'].empty?
+  unless node['kibana']['webserver'].empty?
+    webserver = node['kibana']['webserver']
+    kibana_user = node[webserver]['user']
+  else
+    kibana_user = "nobody"
+  end
+else
+  kibana_user = node['kibana']['user']
+end
+-%>
+
 # Configure location of Kibana bin
 KIBANA_BIN=<%=node['kibana']['installdir'] %>/bin
 
@@ -22,7 +44,7 @@ PATH=/bin:/usr/bin:/sbin:/usr/sbin:$KIBANA_BIN
 DAEMON=$KIBANA_BIN/$NAME
 
 # Configure User to run daemon process
-DAEMON_USER=kibana_user
+DAEMON_USER=<%=kibana_user %>
 # Configure logging location
 KIBANA_LOG=/var/log/kibana.log
 
@@ -98,3 +120,4 @@ case "$1" in
 	exit 2
         ;;
 esac
+
